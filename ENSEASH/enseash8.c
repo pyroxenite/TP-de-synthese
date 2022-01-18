@@ -55,6 +55,13 @@ int main() {
     return 0;
 }
 
+/**
+ * Recherche un éventuel chevron et découpe la commande si besoin.
+ * 
+ * @param cmd La commande complète
+ * @param dir Lecture avec '<' ou écriture avec '>'. Prend ses valeurs dans l'enum IODir
+ * @return char* Le nom du fichier ou un pointeur vers NULL.
+ */
 char* checkForRedirection(char* cmd, IODir* dir) {
     char* filename = strchr(cmd, '>');
     if (filename != NULL) {
@@ -84,6 +91,13 @@ char* checkForRedirection(char* cmd, IODir* dir) {
     return filename;
 }
 
+/**
+ * Sépare la commande en sous-commandes renseignées dans `subCmds`. Élimine les espaces
+ * superflus qui pourraient poser parfois problème.
+ * 
+ * @param cmd 
+ * @param subCmds 
+ */
 void splitAtPipes(char* cmd, char** subCmds) {
     char* ptr = cmd;
     subCmds[0] = cmd;
@@ -123,25 +137,40 @@ float launchPipedProcesses(char** subCmds, int numCmds, int* status, char* filen
     for (int i=0; i<numCmds; i++) {
         cmd = subCmds[i];
         argv = parseArguments(cmd);
-        int stdoutCopy = dup(STDOUT_FILENO);
 
         // Nouveau process
         pid_t pid = fork();
 
         if (pid == 0) { // Fils
+            // Gestion des pipe et redirections
             if (i < numCmds - 1) {
-                dup2(STDIN_FILENO, STDOUT_FILENO);
+                // Overture d'un fichier temporaire pour les sortie des n-1 premières commandes
+                remove(TEMP_FILE);
+                int fd = open(TEMP_FILE, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+                dup2(fd, STDOUT_FILENO);
             } else if (filename != NULL) {
+                // Geestion des redirections
                 if (dir == OUTPUT) {
+                    // cmd > fichier
                     remove(filename);
                     int fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
                     dup2(fd, STDOUT_FILENO);
+                    close(fd);
                 } else {
+                    // cmd < fichier
                     int fd = open(filename, O_RDONLY, S_IRUSR | S_IWUSR);
                     dup2(fd, STDIN_FILENO);
+                    close(fd);
                 }
             }
+            if (i > 0) {
+                // Overture du fichier temporaire en tant qu'entrée des n-1 dernières commandes
+                int fd = open(TEMP_FILE, O_RDONLY, S_IRUSR | S_IWUSR);
+                dup2(fd, STDIN_FILENO);
+                close(fd);
+            }
 
+            // Lancement d'une commande
             int ret = execvp(cmd, argv);
             if (ret == -1) {
                 printError("Le processus n'a pas pu être lancé.");
@@ -155,12 +184,16 @@ float launchPipedProcesses(char** subCmds, int numCmds, int* status, char* filen
         }
     }
 
+    // Efface le fichier temporaire s'il a été créé 
+    remove(TEMP_FILE);
+
     // Fin du chronomètre
     if (clock_gettime(CLOCK_REALTIME, &stop) == -1) {
         printError("Une erreur liée à la gestion du temps s'est produite.");
         exit(EXIT_FAILURE);
     }
 
+    // Delta en ms
     return (stop.tv_sec - start.tv_sec)*1000 + (stop.tv_nsec - start.tv_nsec)/1.0e6;
 }
 

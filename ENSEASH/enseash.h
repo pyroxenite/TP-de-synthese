@@ -15,6 +15,8 @@ const char* BYE_MESSAGE = "Vous repartez déjà ?\n";
 const char* PROMPT_START = "\033[32menseash\033[39m";
 const char* PROMPT_END = " % ";
 
+const char* TEMP_FILE = "pipe-tmp-file";
+
 typedef enum ioDirection { INPUT, OUTPUT } IODir;
 
 void printToConsole(char* str);
