@@ -1,0 +1,18 @@
+total 328
+-rw-r--r--  1 pharox  staff    226 18 Jan 00:11 Makefile
+-rw-r--r--  1 pharox  staff   1469 18 Jan 15:07 enseash.h
+-rw-r--r--  1 pharox  staff    332 18 Jan 00:56 enseash1.c
+-rw-r--r--  1 pharox  staff   1646 18 Jan 00:55 enseash2+3.c
+-rw-r--r--  1 pharox  staff   2863 18 Jan 00:55 enseash4.c
+-rw-r--r--  1 pharox  staff   3834 18 Jan 00:51 enseash5.c
+-rw-r--r--  1 pharox  staff   4212 18 Jan 01:04 enseash6.c
+-rwxr-xr-x  1 pharox  staff  52104 18 Jan 13:08 enseash7
+-rw-r--r--  1 pharox  staff   4837 18 Jan 13:08 enseash7.c
+drwxr-xr-x@ 3 pharox  staff     96 18 Jan 11:24 enseash7.dSYM
+-rwxr-xr-x  1 pharox  staff  52576 18 Jan 15:06 enseash8
+-rw-r--r--  1 pharox  staff   6112 18 Jan 15:10 enseash8.c
+drwxr-xr-x@ 3 pharox  staff     96 18 Jan 14:00 enseash8.dSYM
+-rw-r--r--  1 pharox  staff     62 18 Jan 13:23 grep_example.txt
+-rw-r--r--  1 pharox  staff    106 18 Jan 00:14 test.c
+-rw-------  1 pharox  staff      0 18 Jan 15:10 test.txt
+-rw-------  1 pharox  staff     48 18 Jan 13:02 test2.txt
