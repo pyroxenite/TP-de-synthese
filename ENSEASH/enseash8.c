@@ -95,8 +95,8 @@ char* checkForRedirection(char* cmd, IODir* dir) {
  * Sépare la commande en sous-commandes renseignées dans `subCmds`. Élimine les espaces
  * superflus qui pourraient poser parfois problème.
  * 
- * @param cmd 
- * @param subCmds 
+ * @param cmd La commande complète mais sans redirections
+ * @param subCmds Les sous-commandes
  */
 void splitAtPipes(char* cmd, char** subCmds) {
     char* ptr = cmd;
@@ -123,6 +123,18 @@ void splitAtPipes(char* cmd, char** subCmds) {
     }
 }
 
+/**
+ * Lance toutes les commandes séparées par de pipe une par une en écrivant 
+ * les données inteermédiares dans un fichier temporaraire.
+ * 
+ * @param subCmds Le tableau des sous-commandes.
+ * @param numCmds La longueur du tableau de commandes.
+ * @param status Pointeur vers status pour pouvoir le mettre à jour.
+ * @param filename Un fichier en entrée ou en sortie (les deux ne peuvent pas 
+ * être présents simultanément pour le moment...)
+ * @param dir Permet dee savoir s'il faut lire ou écrire
+ * @return float Le temps total d'exection en ms.
+ */
 float launchPipedProcesses(char** subCmds, int numCmds, int* status, char* filename, IODir dir) {
     struct timespec start, stop;
     char* cmd;
@@ -197,6 +209,12 @@ float launchPipedProcesses(char** subCmds, int numCmds, int* status, char* filen
     return (stop.tv_sec - start.tv_sec)*1000 + (stop.tv_nsec - start.tv_nsec)/1.0e6;
 }
 
+/**
+ * Découpe et néttoie les arguments d'une commande.
+ * 
+ * @param str La commande complexe
+ * @return char** Les morceaux de commande 'argv'
+ */
 char** parseArguments(char* str) {
     int numberOfSpaces = countSpaces(str);
     char** argv = (char **) malloc((numberOfSpaces + 2)*sizeof(char*));
@@ -214,6 +232,11 @@ char** parseArguments(char* str) {
     return argv;
 }
 
+/**
+ * Printf sans f
+ * 
+ * @param str La chaine à afficher
+ */
 void printToConsole(char* str) {
     int ret = write(STDOUT_FILENO, str, strlen(str));
 
@@ -222,20 +245,24 @@ void printToConsole(char* str) {
     }
 }
 
-void setColorToRed() {
+/**
+ * @brief Afficher une erreur en rouge
+ * 
+ * @param str Le texte à afficher
+ */
+void printError(char* str) {
     printToConsole("\033[91m");
-}
-
-void resetColors() {
+    printToConsole(str);
     printToConsole("\033[39m\n");
 }
 
-void printError(char* str) {
-    setColorToRed();
-    printToConsole(str);
-    resetColors();
-}
-
+/**
+ * Affichage du prompt avec signaux et temps d'execution.
+ * 
+ * @param status Informations liées à l'execution
+ * @param showStatus Afficher ou non le status
+ * @param timeDeltaMs Temps à afficher
+ */
 void displayPrompt(int status, int showStatus, float timeDeltaMs) {
     char printBuffer[20];
 
@@ -252,6 +279,13 @@ void displayPrompt(int status, int showStatus, float timeDeltaMs) {
     printToConsole((char *) PROMPT_END);
 }
 
+/**
+ * Compte le nombre d'occurences d'un caractère dans un chaine.
+ * 
+ * @param str La chaine.
+ * @param chr Le caractère.
+ * @return int Le compte.
+ */
 int countChar(char* str, char chr) {
     int count = 0;
     for (int i = 0; i < (int) strlen(str); i++)
