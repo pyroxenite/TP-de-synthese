@@ -4,6 +4,12 @@ Ce programme peut envoyer et recevoir des fichiers à des serveurs TFTP.
 
 ## Utilisation
 
+### Installation
+
+```
+Client TFTP % make tftp
+```
+
 ### Envoi
 
 Commande :
